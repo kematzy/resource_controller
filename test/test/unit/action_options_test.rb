@@ -2,13 +2,18 @@ require File.dirname(__FILE__)+'/../test_helper'
 
 class ActionOptionsTest < Test::Unit::TestCase
   def setup
-    @controller     = PostsController.new
-    @create = ResourceController::ActionOptions.new
+    @controller = PostsController.new
+    @create     = ResourceController::ActionOptions.new
   end
   
   should "have attr accessor for flash" do
     @create.flash "Successfully created."
     assert_equal "Successfully created.", @create.flash
+  end
+  
+  should "have attr accessor for flash_now" do
+    @create.flash_now "Successfully created."
+    assert_equal "Successfully created.", @create.flash_now
   end
 
   %w(before after).each do |accessor|
@@ -63,4 +68,42 @@ class ActionOptionsTest < Test::Unit::TestCase
       assert @create.wants[:html]
     end
   end
+  
+  context "duplicating action options" do
+    setup do
+      @opts = ResourceController::ActionOptions.new
+      @opts.wants.js
+      @opts.after     {}
+      @opts.before    {}
+      @opts.flash     ''
+      @opts.flash_now ''
+      @dup = @opts.dup
+    end
+
+    should "duplicate the response collector" do
+      assert !@opts.wants.equal?(@dup.wants)
+      assert @dup.wants[:js]
+    end
+    
+    should "duplicate the after block" do
+      assert !@opts.after.equal?(@dup.after)
+      assert @dup.after
+    end
+    
+    should "duplicate the before block" do
+      assert !@opts.before.equal?(@dup.before)
+      assert @dup.before
+    end
+    
+    should "duplicate the flash" do
+      assert !@opts.flash.equal?(@dup.flash)
+      assert @dup.flash
+    end
+    
+    should "duplicate the flash_now" do
+      assert !@opts.flash_now.equal?(@dup.flash_now)
+      assert @dup.flash_now
+    end
+  end
+  
 end
